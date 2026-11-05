@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { Lock, CheckCircle2, AlertCircle, KeyRound } from 'lucide-react';
+import { Lock, CheckCircle2, AlertCircle, KeyRound, Loader2 } from 'lucide-react';
 
-export default function AdminResetPasswordPage() {
+function AdminResetPasswordContent() {
   const searchParams = useSearchParams();
   const tokenParam = searchParams.get('token') || '';
 
@@ -135,5 +135,20 @@ export default function AdminResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AdminResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="w-full max-w-md p-12 bg-white rounded-2xl shadow-xl text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#174D36] mb-2" />
+          <p className="text-xs text-gray-500">Loading password reset session...</p>
+        </div>
+      }
+    >
+      <AdminResetPasswordContent />
+    </Suspense>
   );
 }

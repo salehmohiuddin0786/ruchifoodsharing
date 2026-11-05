@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { Lock, CheckCircle2, AlertCircle, KeyRound } from 'lucide-react';
+import { Lock, CheckCircle2, AlertCircle, KeyRound, Loader2 } from 'lucide-react';
 
-export default function PartnerResetPasswordPage() {
+function PartnerResetPasswordContent() {
   const searchParams = useSearchParams();
   const tokenParam = searchParams.get('token') || '';
 
@@ -51,7 +51,7 @@ export default function PartnerResetPasswordPage() {
             <div className="text-center space-y-3">
               <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
               <h3 className="font-bold text-gray-800">Password Reset Successful!</h3>
-              <p className="text-xs text-gray-600">Redirecting to Partner Sign In...</p>
+              <p className="text-xs text-gray-600">Redirecting you to the partner login portal...</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -63,7 +63,9 @@ export default function PartnerResetPasswordPage() {
               )}
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Reset Token</label>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                  Reset Token
+                </label>
                 <div className="relative">
                   <KeyRound className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
                   <input
@@ -72,13 +74,15 @@ export default function PartnerResetPasswordPage() {
                     value={token}
                     onChange={(e) => setToken(e.target.value)}
                     placeholder="tok_..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-[#174D36]"
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#174D36]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">New Password</label>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                  New Password
+                </label>
                 <div className="relative">
                   <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
                   <input
@@ -87,13 +91,15 @@ export default function PartnerResetPasswordPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-[#174D36]"
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#174D36]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Confirm Password</label>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                  Confirm Password
+                </label>
                 <div className="relative">
                   <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
                   <input
@@ -102,7 +108,7 @@ export default function PartnerResetPasswordPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-[#174D36]"
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#174D36]"
                   />
                 </div>
               </div>
@@ -110,9 +116,9 @@ export default function PartnerResetPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 bg-[#174D36] hover:bg-[#0F3826] text-white rounded-xl text-xs font-bold transition"
+                className="w-full py-2.5 bg-[#174D36] hover:bg-[#0F3826] text-white rounded-xl text-sm font-bold flex items-center justify-center transition"
               >
-                {loading ? 'Updating...' : 'Set New Password'}
+                {loading ? 'Updating Password...' : 'Save New Password'}
               </button>
 
               <div className="text-center pt-2">
@@ -125,5 +131,20 @@ export default function PartnerResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PartnerResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="w-full max-w-md p-12 bg-white rounded-2xl shadow-xl text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#174D36] mb-2" />
+          <p className="text-xs text-gray-500">Loading password reset session...</p>
+        </div>
+      }
+    >
+      <PartnerResetPasswordContent />
+    </Suspense>
   );
 }
