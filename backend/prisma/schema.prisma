@@ -1,0 +1,451 @@
+// Prisma Schema for RUCHI Multi-Portal Ecosystem
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum RoleType {
+  SUPER_ADMIN
+  ADMIN
+  COOK
+  DONOR
+  COOK_DONOR
+  CUSTOMER
+}
+
+enum AccountStatus {
+  ACTIVE
+  PENDING_VERIFICATION
+  SUSPENDED
+}
+
+enum DietaryType {
+  VEG
+  NON_VEG
+  VEGAN
+  JAIN
+}
+
+enum PostStatus {
+  ACTIVE
+  SOLD_OUT
+  CLOSED
+  COMPLETED
+  CANCELLED
+}
+
+enum DonationStatus {
+  AVAILABLE
+  RESERVED
+  COLLECTED
+  EXPIRED
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  PREPARING
+  READY
+  COLLECTED
+  CANCELLED
+  EXPIRED
+}
+
+model User {
+  id                  String               @id @default(uuid())
+  email               String?              @unique
+  phone               String?              @unique
+  passwordHash        String?              @map("password_hash")
+  name                String
+  avatar              String?
+  status              AccountStatus        @default(ACTIVE)
+  isEmailVerified     Boolean              @default(false) @map("is_email_verified")
+  isPhoneVerified     Boolean              @default(false) @map("is_phone_verified")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+
+  roles               UserRole[]
+  customerProfile     CustomerProfile?
+  partnerProfile      PartnerProfile?
+  adminProfile        AdminProfile?
+  emailVerifications  EmailVerification[]
+  phoneVerifications  PhoneVerification[]
+  passwordResetTokens PasswordResetToken[]
+  refreshTokens       RefreshToken[]
+  foodPosts           FoodPost[]
+  foodDonations       FoodDonation[]
+  ordersPlaced        FoodOrder[]          @relation("CustomerOrders")
+  reservations        Reservation[]        @relation("CustomerReservations")
+  notifications       Notification[]
+  notificationPref    UserNotificationPreference?
+  pushSubscriptions   UserPushSubscription[]
+  reviewsWritten      Review[]             @relation("Reviewer")
+  reviewsReceived     Review[]             @relation("CookReviews")
+  favourites          Favourite[]
+  auditLogs           AuditLog[]
+
+  @@map("users")
+}
+
+model Role {
+  id          Int        @id @default(autoincrement())
+  name        RoleType   @unique
+  description String?
+  userRoles   UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId     String   @map("user_id")
+  roleId     Int      @map("role_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model CustomerProfile {
+  id                     Int      @id @default(autoincrement())
+  userId                 String   @unique @map("user_id")
+  defaultDeliveryAddress String?  @map("default_delivery_address")
+  area                   String   @default("Madhapur")
+  city                   String   @default("Hyderabad")
+  latitude               Float    @default(17.4483)
+  longitude              Float    @default(78.3915)
+  dietaryPreference      String?  @default("all") @map("dietary_preference")
+  notificationRadiusKm   Int      @default(5) @map("notification_radius_km")
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("customer_profiles")
+}
+
+model PartnerProfile {
+  id                 Int      @id @default(autoincrement())
+  userId             String   @unique @map("user_id")
+  businessName       String   @map("business_name")
+  partnerType        RoleType @default(COOK) @map("partner_type") // COOK, DONOR, COOK_DONOR
+  bio                String?  @db.Text
+  fssaiNumber        String?  @map("fssai_number")
+  kitchenAddress     String   @map("kitchen_address")
+  area               String   @default("Banjara Hills")
+  city               String   @default("Hyderabad")
+  latitude           Float    @default(17.4156)
+  longitude          Float    @default(78.4357)
+  rating             Float    @default(5.0)
+  totalOrdersServed  Int      @default(0) @map("total_orders_served")
+  verificationStatus String   @default("VERIFIED") @map("verification_status")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("partner_profiles")
+}
+
+model AdminProfile {
+  id                     Int      @id @default(autoincrement())
+  userId                 String   @unique @map("user_id")
+  department             String   @default("Trust & Safety")
+  permissions            String   @default("ALL")
+  createdBySuperadminId  String?  @map("created_by_superadmin_id")
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("admin_profiles")
+}
+
+model EmailVerification {
+  id         Int       @id @default(autoincrement())
+  userId     String    @map("user_id")
+  token      String    @unique
+  otp        String
+  expiresAt  DateTime  @map("expires_at")
+  verifiedAt DateTime? @map("verified_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("email_verifications")
+}
+
+model PhoneVerification {
+  id         Int       @id @default(autoincrement())
+  userId     String    @map("user_id")
+  phone      String
+  otp        String
+  expiresAt  DateTime  @map("expires_at")
+  verifiedAt DateTime? @map("verified_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("phone_verifications")
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  token     String   @unique
+  otp       String
+  isUsed    Boolean  @default(false) @map("is_used")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  tokenHash String   @map("token_hash")
+  revoked   Boolean  @default(false)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model FoodPost {
+  id                          String      @id @default(uuid())
+  cookId                      String      @map("cook_id")
+  dishName                    String      @map("dish_name")
+  description                 String      @db.Text
+  category                    String
+  dietary                     DietaryType @default(VEG)
+  pricePerPlate               Decimal     @map("price_per_plate") @db.Decimal(10, 2)
+  totalPlates                 Int         @map("total_plates")
+  remainingPlates             Int         @map("remaining_plates")
+  activeCustomerBookingsCount Int         @default(0) @map("active_customer_bookings_count")
+  cookingStartsAt             DateTime    @map("cooking_starts_at")
+  orderClosesAt               DateTime    @map("order_closes_at")
+  pickupAddress               String      @map("pickup_address")
+  area                        String
+  latitude                    Float
+  longitude                   Float
+  deliveryAvailable           Boolean     @default(false) @map("delivery_available")
+  deliveryFee                 Decimal     @default(0) @map("delivery_fee") @db.Decimal(10, 2)
+  ingredients                 String?     @db.Text
+  allergens                   String?
+  status                      PostStatus  @default(ACTIVE)
+  imageUrl                    String?     @map("image_url")
+  createdAt                   DateTime    @default(now()) @map("created_at")
+
+  cook   User        @relation(fields: [cookId], references: [id], onDelete: Cascade)
+  orders FoodOrder[]
+
+  @@map("food_posts")
+}
+
+model FoodDonation {
+  id                  String         @id @default(uuid())
+  donorId             String         @map("donor_id")
+  title               String
+  description         String         @db.Text
+  category            String
+  dietary             DietaryType    @default(VEG)
+  totalServings       Int            @map("total_servings")
+  remainingServings   Int            @map("remaining_servings")
+  preparedAt          DateTime       @map("prepared_at")
+  expiresAt           DateTime       @map("expires_at")
+  pickupAddress       String         @map("pickup_address")
+  area                String
+  latitude            Float
+  longitude           Float
+  storageInstructions String         @map("storage_instructions") @db.Text
+  allergens           String?
+  status              DonationStatus @default(AVAILABLE)
+  imageUrl            String?        @map("image_url")
+  createdAt           DateTime       @default(now()) @map("created_at")
+
+  donor        User          @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  reservations Reservation[]
+
+  @@map("food_donations")
+}
+
+model FoodOrder {
+  id              String      @id @default(uuid())
+  postId          String      @map("post_id")
+  customerId      String      @map("customer_id")
+  customerName    String      @map("customer_name")
+  customerPhone   String      @map("customer_phone")
+  plateQuantity   Int         @map("plate_quantity")
+  unitPrice       Decimal     @map("unit_price") @db.Decimal(10, 2)
+  deliveryFee     Decimal     @default(0) @map("delivery_fee") @db.Decimal(10, 2)
+  totalAmount     Decimal     @map("total_amount") @db.Decimal(10, 2)
+  fulfillmentType String      @default("PICKUP") @map("fulfillment_type")
+  deliveryAddress String?     @map("delivery_address")
+  status          OrderStatus @default(CONFIRMED)
+  paymentMethod   String      @default("UPI") @map("payment_method")
+  paymentStatus   String      @default("PAID") @map("payment_status")
+  cookingStartsAt DateTime    @map("cooking_starts_at")
+  orderClosesAt   DateTime    @map("order_closes_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  post     FoodPost        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  customer User            @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Cascade)
+  items    FoodOrderItem[]
+  reviews  Review[]
+
+  @@map("food_orders")
+}
+
+model FoodOrderItem {
+  id            Int     @id @default(autoincrement())
+  orderId       String  @map("order_id")
+  itemReference String  @map("item_reference")
+  quantity      Int
+  unitPrice     Decimal @map("unit_price") @db.Decimal(10, 2)
+  lineTotal     Decimal @map("line_total") @db.Decimal(10, 2)
+
+  order FoodOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("food_order_items")
+}
+
+model Reservation {
+  id         Int      @id @default(autoincrement())
+  donationId String   @map("donation_id")
+  claimantId String   @map("claimant_id")
+  servings   Int      @default(1)
+  status     String   @default("CLAIMED")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  donation FoodDonation @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  claimant User         @relation("CustomerReservations", fields: [claimantId], references: [id], onDelete: Cascade)
+
+  @@map("reservations")
+}
+
+model Notification {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  eventId      String?  @map("event_id")
+  portalTarget String   @default("CUSTOMER") @map("portal_target") // ADMIN, PARTNER, CUSTOMER
+  title        String
+  message      String   @db.Text
+  type         String
+  imageUrl     String?  @map("image_url") @db.Text
+  targetUrl    String?  @map("target_url") @db.Text
+  isRead       Boolean  @default(false) @map("is_read")
+  createdAt    DateTime @default(now()) @map("created_at")
+  readAt       DateTime? @map("read_at")
+
+  user  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event NotificationEvent? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, eventId])
+  @@index([userId, isRead, createdAt])
+  @@map("notifications")
+}
+
+model NotificationEvent {
+  id              String         @id @default(uuid())
+  eventType       String         @map("event_type")
+  sourceId        String?        @map("source_id")
+  createdBy       String?        @map("created_by")
+  payload         String?        @db.Text
+  status          String         @default("PROCESSED")
+  recipientsCount Int            @default(0) @map("recipients_count")
+  successCount    Int            @default(0) @map("success_count")
+  failureCount    Int            @default(0) @map("failure_count")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  processedAt     DateTime?      @map("processed_at")
+  notifications   Notification[]
+
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("notification_events")
+}
+
+model UserNotificationPreference {
+  id              Int      @id @default(autoincrement())
+  userId          String   @unique @map("user_id")
+  pushEnabled     Boolean  @default(true) @map("push_enabled")
+  soundEnabled    Boolean  @default(true) @map("sound_enabled")
+  soundVolume     Float    @default(0.8) @map("sound_volume")
+  newDishEnabled  Boolean  @default(true) @map("new_dish_enabled")
+  preorderEnabled Boolean  @default(true) @map("preorder_enabled")
+  freeFoodEnabled Boolean  @default(true) @map("free_food_enabled")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_notification_preferences")
+}
+
+model UserPushSubscription {
+  id                Int      @id @default(autoincrement())
+  userId            String   @map("user_id")
+  deviceId          String?  @map("device_id")
+  platform          String   @default("web")
+  subscriptionToken String?  @map("subscription_token") @db.Text
+  endpoint          String?  @db.Text
+  p256dh            String?  @db.Text
+  auth              String?  @db.Text
+  isActive          Boolean  @default(true) @map("is_active")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@map("user_push_subscriptions")
+}
+
+model Review {
+  id               Int      @id @default(autoincrement())
+  orderId          String   @map("order_id")
+  reviewerId       String   @map("reviewer_id")
+  cookId           String   @map("cook_id")
+  rating           Int
+  comment          String?  @db.Text
+  moderationStatus String   @default("APPROVED") @map("moderation_status")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  order    FoodOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reviewer User      @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+  cook     User      @relation("CookReviews", fields: [cookId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+model Favourite {
+  id         Int      @id @default(autoincrement())
+  customerId String   @map("customer_id")
+  cookId     String   @map("cook_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  customer User @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, cookId])
+  @@map("favourites")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  actorId    String   @map("actor_id")
+  action     String
+  portal     String   @default("ADMIN") // ADMIN, PARTNER, CUSTOMER
+  targetType String   @map("target_type")
+  targetId   String   @map("target_id")
+  metadata   String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  actor User @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+}
