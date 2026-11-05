@@ -108,13 +108,25 @@ npm start
 - API Base URL: `http://localhost:5000/api`
 - Health Check: `http://localhost:5000/api/health`
 
-### 4. Start Frontend
-In a separate terminal:
+### 4. Start Tri-Portals
+In separate terminals:
 ```bash
-cd frontend
-npm run dev
+# Customer Portal (Port 4004)
+npm --prefix customer-portal run dev
+
+# Admin Portal (Port 4005)
+npm --prefix admin-portal run dev
+
+# Partner / Cook Portal (Port 4006)
+npm --prefix partner-portal run dev
+
+# Backend API & Socket.IO (Port 7001)
+node backend/server.js
 ```
-- Frontend Web App: `http://localhost:3000`
+- Customer Web App: `http://localhost:4004`
+- Admin Ops Portal: `http://localhost:4005`
+- Partner Cook Portal: `http://localhost:4006`
+- Backend REST API: `http://localhost:7001/api`
 
 ---
 

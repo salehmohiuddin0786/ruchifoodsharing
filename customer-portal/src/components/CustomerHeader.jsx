@@ -93,7 +93,7 @@ export default function CustomerHeader() {
         <div className="flex items-center space-x-3 text-[11px]">
           <span className="text-slate-500 font-medium hidden sm:inline">Portals:</span>
           <a
-            href="http://localhost:3002"
+            href="http://localhost:4006"
             target="_blank"
             rel="noreferrer"
             className="px-2.5 py-0.5 bg-[#1C2541]/80 hover:bg-[#3A506B]/50 rounded-lg text-slate-300 hover:text-white flex items-center gap-1 transition border border-white/5"
@@ -101,7 +101,7 @@ export default function CustomerHeader() {
             Partner Portal <ExternalLink className="w-2.5 h-2.5 text-[#5BC0DE]" />
           </a>
           <a
-            href="http://localhost:3001"
+            href="http://localhost:4005"
             target="_blank"
             rel="noreferrer"
             className="px-2.5 py-0.5 bg-[#1C2541]/80 hover:bg-[#3A506B]/50 rounded-lg text-slate-300 hover:text-white flex items-center gap-1 transition border border-white/5"

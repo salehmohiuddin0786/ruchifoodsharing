@@ -95,7 +95,7 @@ export default function PartnerLayout({ children }) {
           </p>
           <div className="flex items-center space-x-2">
             <a
-              href="http://localhost:3000"
+              href="http://localhost:4004"
               target="_blank"
               rel="noreferrer"
               className="px-2 py-1 bg-[#1E3A2E] hover:bg-[#3E5A3F] rounded text-[11px] text-[#C7CBB8] hover:text-white flex items-center gap-1 transition"
@@ -103,7 +103,7 @@ export default function PartnerLayout({ children }) {
               Customer <ExternalLink className="w-2.5 h-2.5" />
             </a>
             <a
-              href="http://localhost:3001"
+              href="http://localhost:4005"
               target="_blank"
               rel="noreferrer"
               className="px-2 py-1 bg-[#1E3A2E] hover:bg-[#3E5A3F] rounded text-[11px] text-[#C7CBB8] hover:text-white flex items-center gap-1 transition"

@@ -19,16 +19,19 @@ const curryRiceRoutes = require('./routes/curry_rice');
 const pollRoutes = require('./routes/polls');
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 7001;
 
 // CORS configuration supporting all 3 frontend portals
 const allowedOrigins = [
-  'http://localhost:3000', // Customer Portal (www.ruchi.com)
-  'http://localhost:3001', // Admin Portal (admin.ruchi.com)
-  'http://localhost:3002', // Cook / Donor Partner Portal (partner.ruchi.com)
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-  'http://127.0.0.1:3002',
+  'http://localhost:4004', // Customer Portal
+  'http://localhost:4005', // Admin Portal
+  'http://localhost:4006', // Cook / Donor Partner Portal
+  'http://127.0.0.1:4004',
+  'http://127.0.0.1:4005',
+  'http://127.0.0.1:4006',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
 ];
 
 app.use(
@@ -79,9 +82,9 @@ app.get('/api/health', async (req, res) => {
       port: PORT,
       timestamp: new Date().toISOString(),
       portals: {
-        customer: 'http://localhost:3000 (www.ruchi.com)',
-        admin: 'http://localhost:3001 (admin.ruchi.com)',
-        partner: 'http://localhost:3002 (partner.ruchi.com)',
+        customer: 'http://localhost:4004 (Customer Portal)',
+        admin: 'http://localhost:4005 (Admin Portal)',
+        partner: 'http://localhost:4006 (Partner Portal)',
       },
     });
   } catch (error) {
@@ -107,9 +110,9 @@ server.listen(PORT, async () => {
   console.log(`⚡ Socket.IO Real-time Engine initialized`);
   console.log(`🐬 Database: MySQL through XAMPP (ruchi_db on localhost:3306)`);
   console.log(`👥 Portals Supported:`);
-  console.log(`   - Customer Portal: http://localhost:3000`);
-  console.log(`   - Admin Portal:    http://localhost:3001`);
-  console.log(`   - Partner Portal:  http://localhost:3002`);
+  console.log(`   - Customer Portal: http://localhost:4004`);
+  console.log(`   - Admin Portal:    http://localhost:4005`);
+  console.log(`   - Partner Portal:  http://localhost:4006`);
   console.log(`=======================================================`);
 
   // Start background cutoff & expiry cron worker

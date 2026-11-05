@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7001/api';
 
   useEffect(() => {
     checkAuth();

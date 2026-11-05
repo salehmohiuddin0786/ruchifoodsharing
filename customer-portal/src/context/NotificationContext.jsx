@@ -7,8 +7,8 @@ import { playNotificationSound, unlockAudio } from '@/lib/soundAlerts';
 
 const NotificationContext = createContext();
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5001';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7001/api';
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:7001';
 
 export function NotificationProvider({ children }) {
   const { user } = useAuth();

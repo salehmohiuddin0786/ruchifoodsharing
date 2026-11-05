@@ -3,12 +3,15 @@ const { Server } = require('socket.io');
 let io = null;
 
 const allowedOrigins = [
+  'http://localhost:4004',
+  'http://localhost:4005',
+  'http://localhost:4006',
+  'http://127.0.0.1:4004',
+  'http://127.0.0.1:4005',
+  'http://127.0.0.1:4006',
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:3002',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-  'http://127.0.0.1:3002',
 ];
 
 function initSocket(server) {

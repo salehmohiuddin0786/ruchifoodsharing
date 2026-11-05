@@ -118,7 +118,7 @@ export default function AdminLayout({ children }) {
           </p>
           <div className="flex items-center space-x-2">
             <a
-              href="http://localhost:3000"
+              href="http://localhost:4004"
               target="_blank"
               rel="noreferrer"
               className="px-2 py-1 bg-[#253745]/80 hover:bg-[#4A5C6A] rounded text-[11px] text-white flex items-center gap-1 transition"
@@ -126,7 +126,7 @@ export default function AdminLayout({ children }) {
               Customer <ExternalLink className="w-2.5 h-2.5" />
             </a>
             <a
-              href="http://localhost:3002"
+              href="http://localhost:4006"
               target="_blank"
               rel="noreferrer"
               className="px-2 py-1 bg-[#253745]/80 hover:bg-[#4A5C6A] rounded text-[11px] text-white flex items-center gap-1 transition"

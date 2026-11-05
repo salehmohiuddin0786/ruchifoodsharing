@@ -21,7 +21,7 @@ import {
   Layers,
 } from 'lucide-react';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7001/api';
 
 export default function AdminNotificationsPage() {
   const { user } = useAuth();
